@@ -19,14 +19,75 @@ private:
   int indexOfLeftChild(int i);
   int indexOfRightChild(int i);
   int indexOfParent(int i);
+  int findIndex(T item);
   void swapNodes(int a, int b);
+  void fixNodeAt(int i);
 
 public:
   void insert(T item);
-  // void remove(T item);
+  void remove(T item);
   T getMinimum();
   void print();
 };
+
+// template<typename T>
+// int Heap<T>::findIndex(T item, int currentIndex) {
+//   cout << "inspecting index " << currentIndex << endl;
+
+//   if (currentIndex >= list.size()) {
+//     return 0;
+//   }
+
+//   if (list[currentIndex] == item) {
+//     return currentIndex;
+//   }
+
+//   return findIndex(item, indexOfLeftChild(currentIndex)) + findIndex(item, indexOfRightChild(currentIndex));
+// }
+
+// Sequentially seek for the element.  O(n) time.
+template<typename T>
+int Heap<T>::findIndex(T item) {
+  for (int i = 0; i < list.size(); i++) {
+    if (list[i] == item) return i;
+  }
+
+  return -1; // sentinel value if item not found
+}
+
+template<typename T>
+void Heap<T>::remove(T item) {
+  int indexOfItemToRemove = findIndex(item);
+  int indexOfLastItem = list.size() - 1;
+
+  swapNodes(indexOfLastItem, indexOfItemToRemove);
+
+  // delete the last item:
+  list.pop_back();
+
+  // fix the heap.  compare the item with children; if a child is larger than it, swap.
+  fixNodeAt(indexOfItemToRemove);
+  return;
+}
+
+// Given the index of a node whose position in the heap is invalid, fix the heap by moving the node
+// to its correct position.  If a child node is greater than the node in question and the other child node,
+// swap them.  Reapeat this recursively until the node in question is greater than both of its children.
+template<typename T>
+void Heap<T>::fixNodeAt(int i) {
+  // if left child is larger than current and the left child is greater than the right child
+  if (indexOfLeftChild(i) < list.size() && list[indexOfLeftChild(i)] > list[i] && list[indexOfLeftChild(i)] > list[indexOfRightChild(i)]) { 
+    swapNodes(i, indexOfLeftChild(i));
+    return fixNodeAt(indexOfLeftChild(i));
+  }
+
+  if (indexOfRightChild(i) < list.size() && list[indexOfRightChild(i)] > list[i] && list[indexOfRightChild(i)] > list[indexOfLeftChild(i)]) { 
+    swapNodes(i, indexOfRightChild(i));
+    return fixNodeAt(indexOfRightChild(i));
+  }
+
+  return;
+}
 
 template<typename T>
 void Heap<T>::insert(T item) {
@@ -86,11 +147,15 @@ int Heap<T>::indexOfParent(int i) {
 
 template<typename T>
 int Heap<T>::indexOfRightChild(int i) {
+  if (i == 0) { return 2; }
+
   return (i * 2) + 1;
 }
 
 template<typename T>
 int Heap<T>::indexOfLeftChild(int i) {
+  if (i == 0) { return 1; }
+
   return (i * 2);
 }
 
@@ -107,6 +172,14 @@ int main() {
   heap.insert(10);
 
   cout << heap.getMinimum() << endl;
+  heap.print();
+
+  heap.remove(3);
+
+  heap.print();
+
+  heap.remove(10);
+
   heap.print();
 
   return 0;
