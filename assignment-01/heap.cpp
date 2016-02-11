@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <vector>
 #include <iostream>
+#include <sstream>
 #include <algorithm>
 using namespace std;
 
@@ -75,13 +76,17 @@ void Heap<T>::remove(T item) {
 // swap them.  Reapeat this recursively until the node in question is greater than both of its children.
 template<typename T>
 void Heap<T>::fixNodeAt(int i) {
-  // if left child is larger than current and the left child is greater than the right child
-  if (indexOfLeftChild(i) < list.size() && list[indexOfLeftChild(i)] > list[i] && list[indexOfLeftChild(i)] > list[indexOfRightChild(i)]) { 
+  // if left child is within bounds and left child is larger than current and the left child is greater than the right child
+  if (indexOfLeftChild(i) < list.size() && 
+      list[indexOfLeftChild(i)] > list[i] && 
+      list[indexOfLeftChild(i)] > list[indexOfRightChild(i)]) { 
     swapNodes(i, indexOfLeftChild(i));
     return fixNodeAt(indexOfLeftChild(i));
   }
 
-  if (indexOfRightChild(i) < list.size() && list[indexOfRightChild(i)] > list[i] && list[indexOfRightChild(i)] > list[indexOfLeftChild(i)]) { 
+  if (indexOfRightChild(i) < list.size() && 
+      list[indexOfRightChild(i)] > list[i] && 
+      list[indexOfRightChild(i)] > list[indexOfLeftChild(i)]) { 
     swapNodes(i, indexOfRightChild(i));
     return fixNodeAt(indexOfRightChild(i));
   }
@@ -117,7 +122,7 @@ template<typename T>
 T Heap<T>::getMinimum() {
   // calculate beginning index of last row given the list's size
   int height = floor(log2(list.size()));
-  int lastRowIndexBegin = pow(2, height);
+  int lastRowIndexBegin = pow(2, height) - 1;
 
   // find lowest element by iterating from last row begin to end of list
   T lowest = list[lastRowIndexBegin];
@@ -160,27 +165,36 @@ int Heap<T>::indexOfLeftChild(int i) {
 }
 
 int main() {
-  /* Enter your code here. Read input from STDIN. Print output to STDOUT */
-
   Heap<int> heap = Heap<int>();
 
   heap.insert(4);
-  heap.insert(2);
-  heap.insert(1);
-  heap.insert(3);
-  heap.insert(8);
-  heap.insert(10);
-
+  heap.insert(9);
   cout << heap.getMinimum() << endl;
-  heap.print();
+  heap.remove(4);
+  cout << heap.getMinimum() << endl;
 
-  heap.remove(3);
+  // interface for HackerRank submission:
+  // int operation;
+  // int element;
+  // string input;
+  // 
+  // // skip first line; we don't need to know length of input since we rely on failbit
+  // getline(cin, input);
 
-  heap.print();
+  // while(getline(cin, input)) {
+  //   stringstream ss(input);
+  //   ss >> operation;
+  //   ss >> element;
 
-  heap.remove(10);
+  //   if (operation == 1) {
+  //     heap.insert(element);
+  //   } else if (operation == 2) {
+  //     heap.remove(element);
+  //   } else {
+  //     cout << heap.getMinimum() << endl;
+  //   }
 
-  heap.print();
+  // }
 
   return 0;
 }
