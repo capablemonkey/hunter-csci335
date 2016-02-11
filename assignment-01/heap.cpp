@@ -100,7 +100,7 @@ void Heap<T>::insert(T item) {
 
   int i = list.size() - 1;
 
-  while(i > 0 && item > indexOfParent(i)) {
+  while(i > 0 && item > list[indexOfParent(i)]) {
     swapNodes(i, indexOfParent(i));
     i = indexOfParent(i);
   }
@@ -118,16 +118,19 @@ void Heap<T>::print() {
   cout << endl;
 }
 
+// linear search through leaf nodes for smallest.
 template<typename T>
 T Heap<T>::getMinimum() {
-  // calculate beginning index of last row given the list's size
-  int height = floor(log2(list.size()));
-  int lastRowIndexBegin = pow(2, height) - 1;
+  // calculate beginning index of leaf node sequence
+  // (last node).parent + 1
+  int indexLastNode = list.size() - 1;
+  if (indexLastNode == 0) { return list[0]; }
 
-  // find lowest element by iterating from last row begin to end of list
-  T lowest = list[lastRowIndexBegin];
+  // find lowest element by iterating from first leaf to last
+  int indexLeavesBegin = indexOfParent(indexLastNode) + 1;
+  T lowest = list[indexLeavesBegin];
 
-  for (int i = lastRowIndexBegin; i < list.size(); i++) {
+  for (int i = indexLeavesBegin; i < list.size(); i++) {
     if (list[i] < lowest) {
       lowest = list[i];
     }
