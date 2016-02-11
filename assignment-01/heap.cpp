@@ -5,11 +5,9 @@
  */
 
 #include <cmath>
-#include <cstdio>
 #include <vector>
 #include <iostream>
 #include <sstream>
-#include <algorithm>
 using namespace std;
 
 template<typename T>
@@ -28,7 +26,6 @@ public:
   void insert(T item);
   void remove(T item);
   T getMinimum();
-  void print();
 };
 
 // Sequentially seek for the element.  O(n) time.
@@ -51,7 +48,7 @@ void Heap<T>::remove(T item) {
   // delete the last item:
   list.pop_back();
 
-  // fix the heap.  compare the item with children; if a child is larger than it, swap.
+  // fix the heap. swap node with max child until heap is valid
   fixNodeAt(indexOfItemToRemove);
   return;
 }
@@ -69,7 +66,8 @@ void Heap<T>::fixNodeAt(int i) {
 
   // find index of max child
   bool rightChildWithinBounds = indexOfRightChild(i) < list.size();
-  bool rightChildGreater = rightChildWithinBounds && list[indexOfRightChild(i)] > list[indexOfLeftChild(i)];
+  bool rightChildGreater = rightChildWithinBounds && 
+                           list[indexOfRightChild(i)] > list[indexOfLeftChild(i)];
   int indexOfMaxChild = rightChildGreater ? indexOfRightChild(i) : indexOfLeftChild(i);
 
   // if max child is greater than node, swap them
@@ -131,14 +129,12 @@ int Heap<T>::indexOfParent(int i) {
 template<typename T>
 int Heap<T>::indexOfLeftChild(int i) {
   if (i == 0) { return 1; }
-
   return (i * 2) + 1;
 }
 
 template<typename T>
 int Heap<T>::indexOfRightChild(int i) {
   if (i == 0) { return 2; }
-
   return (i * 2) + 2; 
 }
 
@@ -146,12 +142,10 @@ int main() {
   Heap<int> heap = Heap<int>();
 
   // interface for HackerRank submission:
-  int operation;
-  int element;
+  int operation, element;
   string input;
 
-  // skip first line; we don't need to know length of input since we rely
-  // on failbit
+  // skip first line; we rely on failbit instead of line count
   getline(cin, input);
 
   while(getline(cin, input)) {
