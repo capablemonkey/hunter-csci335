@@ -124,10 +124,9 @@ T Heap<T>::getMinimum() {
   // calculate beginning index of leaf node sequence
   // (last node).parent + 1
   int indexLastNode = list.size() - 1;
-  if (indexLastNode == 0) { return list[0]; }
+  int indexLeavesBegin = indexOfParent(indexLastNode) + 1;
 
   // find lowest element by iterating from first leaf to last
-  int indexLeavesBegin = indexOfParent(indexLastNode) + 1;
   T lowest = list[indexLeavesBegin];
 
   for (int i = indexLeavesBegin; i < list.size(); i++) {
@@ -150,7 +149,7 @@ void Heap<T>::swapNodes(int a, int b) {
 
 template<typename T>
 int Heap<T>::indexOfParent(int i) {
-  return floor(i / 2.0);
+  return floor((i - ((i+1) % 2)) / 2.0);
 }
 
 template<typename T>
@@ -170,34 +169,28 @@ int Heap<T>::indexOfLeftChild(int i) {
 int main() {
   Heap<int> heap = Heap<int>();
 
-  heap.insert(4);
-  heap.insert(9);
-  cout << heap.getMinimum() << endl;
-  heap.remove(4);
-  cout << heap.getMinimum() << endl;
-
   // interface for HackerRank submission:
-  // int operation;
-  // int element;
-  // string input;
-  // 
-  // // skip first line; we don't need to know length of input since we rely on failbit
-  // getline(cin, input);
+  int operation;
+  int element;
+  string input;
 
-  // while(getline(cin, input)) {
-  //   stringstream ss(input);
-  //   ss >> operation;
-  //   ss >> element;
+  // skip first line; we don't need to know length of input since we rely on failbit
+  getline(cin, input);
 
-  //   if (operation == 1) {
-  //     heap.insert(element);
-  //   } else if (operation == 2) {
-  //     heap.remove(element);
-  //   } else {
-  //     cout << heap.getMinimum() << endl;
-  //   }
+  while(getline(cin, input)) {
+    stringstream ss(input);
+    ss >> operation;
+    ss >> element;
 
-  // }
+    if (operation == 1) {
+      heap.insert(element);
+    } else if (operation == 2) {
+      heap.remove(element);
+    } else {
+      cout << heap.getMinimum() << endl;
+    }
+
+  }
 
   return 0;
 }
