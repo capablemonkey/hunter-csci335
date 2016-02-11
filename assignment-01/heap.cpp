@@ -62,35 +62,22 @@ void Heap<T>::remove(T item) {
 // recursively until the node in question is greater than both of its children.
 template<typename T>
 void Heap<T>::fixNodeAt(int i) {
-  bool leftChildWithinBounds = indexOfLeftChild(i) < list.size();
+  // if leaf node, nothing to do
+  if (indexOfLeftChild(i) >= list.size()) {
+    return;
+  }
+
+  // find index of max child
   bool rightChildWithinBounds = indexOfRightChild(i) < list.size();
-  bool leftChildIsMaxChild = (leftChildWithinBounds && rightChildWithinBounds) ? list[indexOfLeftChild(i)] > list[indexOfRightChild(i)] : true;
-  bool rightChildIsMaxChild = (rightChildWithinBounds) ? list[indexOfRightChild(i)] > list[indexOfLeftChild(i)] : true;
-  bool leftChildGreaterThanNode = leftChildWithinBounds ? list[indexOfLeftChild(i)] > list[i] : false;
-  bool rightChildGreaterThanNode = rightChildWithinBounds ? list[indexOfRightChild(i)] > list[i] : false;
+  bool rightChildGreater = rightChildWithinBounds && list[indexOfRightChild(i)] > list[indexOfLeftChild(i)];
+  int indexOfMaxChild = rightChildGreater ? indexOfRightChild(i) : indexOfLeftChild(i);
 
-  // if left child is within bounds and left child is larger than current and the left child is greater than the right child
-  if (leftChildGreaterThanNode && leftChildIsMaxChild) {
-    swapNodes(i, indexOfLeftChild(i));
-    return fixNodeAt(indexOfLeftChild(i));
+  // if max child is greater than node, swap them
+  if (list[indexOfMaxChild] > list[i]) {
+    swapNodes(i, indexOfMaxChild);
   }
 
-  if (rightChildGreaterThanNode && rightChildIsMaxChild) {
-    swapNodes(i, indexOfRightChild(i));
-    return fixNodeAt(indexOfRightChild(i));
-  }
-
-  return;
-}
-
-template<typename T>
-void Heap<T>::print() {
-  typedef typename vector<T>::iterator iterator;
-  for (iterator it = list.begin(); it != list.end(); ++it) {
-    cout << " " << *it;
-  }
-
-  cout << endl;
+  return fixNodeAt(indexOfMaxChild);
 }
 
 template<typename T>
@@ -172,17 +159,12 @@ int main() {
     ss >> operation;
     ss >> element;
 
-    cout << "=== heap print ";
-    heap.print();
-
     if (operation == 1) {
-      cout << "[ADD] " << element << endl;
       heap.insert(element);
     } else if (operation == 2) {
-      cout << "[REMOVE] " << element << endl;
       heap.remove(element);
     } else {
-      cout << "[MIN] = " << heap.getMinimum() << endl;
+      cout << heap.getMinimum() << endl;
     }
 
   }
