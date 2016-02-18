@@ -23,7 +23,6 @@ private:
   int indexOfLeftChild(int i);
   int indexOfRightChild(int i);
   int indexOfParent(int i);
-  int findIndex(T item);
   void swapNodes(int a, int b);
   void fixNodeAt(int i);
   void removeNodeAt(int i);
@@ -33,16 +32,6 @@ public:
   T popMin();
   bool empty();
 };
-
-// Sequentially seek for the element.  O(n) time.
-template<typename T>
-int Heap<T>::findIndex(T item) {
-  for (int i = 0; i < list.size(); i++) {
-    if (list[i] == item) return i;
-  }
-
-  return -1; // sentinel value if item not found
-}
 
 template<typename T>
 bool Heap<T>::empty() {
