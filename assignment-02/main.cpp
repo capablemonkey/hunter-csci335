@@ -108,7 +108,7 @@ T Heap<T>::popMin() {
 
   // find lowest element by iterating from first leaf to last
   T lowest = list[indexLeavesBegin];
-  int indexLowest;
+  int indexLowest = indexLeavesBegin;
 
   for (int i = indexLeavesBegin; i < list.size(); i++) {
     if (*list[i] < *lowest) {
