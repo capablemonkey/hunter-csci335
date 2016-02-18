@@ -7,6 +7,7 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <algorithm>
 using namespace std;
@@ -146,33 +147,33 @@ int Heap<T>::indexOfRightChild(int i) {
 
 class Order {
 private:
-  int timeCreated;
-  int timeCost;
-  int timeCookProgress = 0;
-  int timeStartedCooking;
-  int timeFinishedCooking;
+  long int timeCreated;
+  long int timeCost;
+  long int timeCookProgress = 0;
+  long int timeStartedCooking;
+  long int timeFinishedCooking;
 
 public:
-  Order(int created, int cost) {
+  Order(long int created, long int cost) {
     timeCreated = created;
     timeCost = cost;
   }
 
-  void startCooking(int timeStart) {
+  void startCooking(long int timeStart) {
     timeStartedCooking = timeStart;
   }
 
-  void finishCooking(int timeEnd) {
+  void finishCooking(long int timeEnd) {
     timeFinishedCooking = timeEnd;
   }
 
-  int getTimeCreated() { return timeCreated; }
-  int getTimeCost() { return timeCost; }
+  long int getTimeCreated() { return timeCreated; }
+  long int getTimeCost() { return timeCost; }
 
   bool isCooked() { return timeCookProgress == timeCost; }
   void cookOneTurn() { timeCookProgress++; }
 
-  int getWaitTime() {
+  long int getWaitTime() {
     return timeFinishedCooking - timeCreated;
   }
 
@@ -184,6 +185,12 @@ public:
     return left.timeCost > right.timeCost;
   }
 };
+
+struct {
+  bool operator()(Order *a, Order *b) {
+    return a->getTimeCreated() > b->getTimeCreated();
+  }
+} descendingTimeCreated;
 
 int main() {
   Heap<Order*> orderQueue = Heap<Order*>();
@@ -204,52 +211,79 @@ int main() {
     newOrders.push_back(o);
   }
 
-  // reverse so we can later pop_back to get the earliest order
-  reverse(newOrders.begin(), newOrders.end());
+  // sort so we can later pop_back to get the earliest order
+  sort(newOrders.begin(), newOrders.end(), descendingTimeCreated);
 
   // begin simulation
-  int currentTime = 0;
   int totalOrders = newOrders.size();
-
+  long int currentTime = newOrders[totalOrders - 1]->getTimeCreated();
   Order *orderBeingCooked = NULL;
 
   while(finishedOrders.size() < totalOrders) {
-    // check for an order created at this time and add to heap
-    if (newOrders.empty() == false) {
-      Order *earliestOrder = newOrders[newOrders.size() - 1];
-      if (earliestOrder->getTimeCreated() == currentTime) {
-        orderQueue.insert(earliestOrder);
+    // find orders created earlier than now and a) insert them into heap and b) pop them from newOrders
+    for(int i = newOrders.size() - 1; i >= 0; i--) {
+      if (newOrders[i]->getTimeCreated() <= currentTime) {
+        orderQueue.insert(newOrders[i]);
         newOrders.pop_back();
+      } else {
+        break;
       }
     }
 
-    if (currentTime == 0) {
-      orderBeingCooked = orderQueue.popMin();
-      orderBeingCooked->startCooking(currentTime);
-    }
+    orderBeingCooked = orderQueue.popMin();
+    orderBeingCooked->startCooking(currentTime);
 
-    if (orderBeingCooked->isCooked() == true) {
-      orderBeingCooked->finishCooking(currentTime);
-      finishedOrders.push_back(orderBeingCooked);
+    cout << "At time " << currentTime << " started cooking " << orderBeingCooked->getTimeCost() << endl;
 
-      // start cooking the next order
-      if (orderQueue.empty() == false) {
-        orderBeingCooked = orderQueue.popMin();
-        orderBeingCooked->startCooking(currentTime);
-      }
-    }
-
-    orderBeingCooked->cookOneTurn();
-    currentTime++;
+    currentTime += orderBeingCooked->getTimeCost();
+    orderBeingCooked->finishCooking(currentTime);
+    finishedOrders.push_back(orderBeingCooked);
   }
 
+  // while(finishedOrders.size() < totalOrders) {
+  //   // check for an order created at this time and add to heap
+  //   if (newOrders.empty() == false) {
+  //     Order *earliestOrder = newOrders[newOrders.size() - 1];
+  //     if (earliestOrder->getTimeCreated() == currentTime) {
+  //       orderQueue.insert(earliestOrder);
+  //       newOrders.pop_back();
+  //     }
+  //   }
+
+  //   if (currentTime == 0) {
+  //     orderBeingCooked = orderQueue.popMin();
+  //     orderBeingCooked->startCooking(currentTime);
+  //   }
+
+  //   if (orderBeingCooked->isCooked() == true) {
+  //     orderBeingCooked->finishCooking(currentTime);
+  //     finishedOrders.push_back(orderBeingCooked);
+
+  //     // start cooking the next order
+  //     if (orderQueue.empty() == false) {
+  //       orderBeingCooked = orderQueue.popMin();
+  //       orderBeingCooked->startCooking(currentTime);
+  //     }
+  //   }
+
+  //   orderBeingCooked->cookOneTurn();
+  //   currentTime++;
+  // }
+
+  cout << finishedOrders.size() << endl;
+  cout << finishedOrders[0]->getTimeCreated() << endl;
+  cout << finishedOrders[0]->getWaitTime() << endl;
+
   // calculate average wait time
-  int totalWaitTime = 0;
+  long int totalWaitTime = 0;
+
   for (int i = 0; i < finishedOrders.size(); i++) {
     totalWaitTime += finishedOrders[i]->getWaitTime();
   }
 
-  cout << floor((totalWaitTime * 1.0) / finishedOrders.size()) << endl;
+  long double average = (totalWaitTime * 1.0) / finishedOrders.size();
+
+  cout << fixed << setprecision(0) << average << endl;
 
   return 0;
 }
