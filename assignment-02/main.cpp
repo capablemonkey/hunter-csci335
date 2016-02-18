@@ -233,46 +233,22 @@ int main() {
     orderBeingCooked = orderQueue.popMin();
     orderBeingCooked->startCooking(currentTime);
 
-    cout << "At time " << currentTime << " started cooking " << orderBeingCooked->getTimeCost() << endl;
+    // cout << "At time " << currentTime << " started cooking " << orderBeingCooked->getTimeCost() << endl;
 
     currentTime += orderBeingCooked->getTimeCost();
     orderBeingCooked->finishCooking(currentTime);
     finishedOrders.push_back(orderBeingCooked);
+
+    // cout << "|--> finished at " << currentTime  << ".  Orders cooked:" << finishedOrders.size() << endl;
+
+    // Look ahead: if no new orders since cooking pizza, pass time to next order arrival.
+    if (newOrders.empty() == false && orderQueue.empty()) {
+      long int nextOrder = newOrders[newOrders.size() - 1]->getTimeCreated();
+      if (nextOrder > currentTime) {
+        currentTime = nextOrder;
+      }
+    }
   }
-
-  // while(finishedOrders.size() < totalOrders) {
-  //   // check for an order created at this time and add to heap
-  //   if (newOrders.empty() == false) {
-  //     Order *earliestOrder = newOrders[newOrders.size() - 1];
-  //     if (earliestOrder->getTimeCreated() == currentTime) {
-  //       orderQueue.insert(earliestOrder);
-  //       newOrders.pop_back();
-  //     }
-  //   }
-
-  //   if (currentTime == 0) {
-  //     orderBeingCooked = orderQueue.popMin();
-  //     orderBeingCooked->startCooking(currentTime);
-  //   }
-
-  //   if (orderBeingCooked->isCooked() == true) {
-  //     orderBeingCooked->finishCooking(currentTime);
-  //     finishedOrders.push_back(orderBeingCooked);
-
-  //     // start cooking the next order
-  //     if (orderQueue.empty() == false) {
-  //       orderBeingCooked = orderQueue.popMin();
-  //       orderBeingCooked->startCooking(currentTime);
-  //     }
-  //   }
-
-  //   orderBeingCooked->cookOneTurn();
-  //   currentTime++;
-  // }
-
-  cout << finishedOrders.size() << endl;
-  cout << finishedOrders[0]->getTimeCreated() << endl;
-  cout << finishedOrders[0]->getWaitTime() << endl;
 
   // calculate average wait time
   long int totalWaitTime = 0;
@@ -281,9 +257,9 @@ int main() {
     totalWaitTime += finishedOrders[i]->getWaitTime();
   }
 
-  long double average = (totalWaitTime * 1.0) / finishedOrders.size();
+  double average = (totalWaitTime * 1.0) / finishedOrders.size();
 
-  cout << fixed << setprecision(0) << average << endl;
+  cout << fixed << setprecision(0) << average;
 
   return 0;
 }
