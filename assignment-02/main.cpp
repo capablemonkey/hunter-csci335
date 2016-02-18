@@ -11,6 +11,10 @@
 #include <algorithm>
 using namespace std;
 
+/*
+ * Heap implementation
+ */
+
 template<typename T>
 class Heap {
 private:
@@ -147,6 +151,10 @@ int Heap<T>::indexOfRightChild(int i) {
   return (i * 2) + 2;
 }
 
+/*
+ * Order implementation
+ */
+
 class Order {
 private:
   int timeCreated;
@@ -217,14 +225,10 @@ int main() {
   Order *orderBeingCooked = NULL;
 
   while(finishedOrders.size() < totalOrders) {
-    cout << "Current time: " << currentTime << endl;
-    cout << "New orders: " << newOrders.size() << endl;
-
     // check for an order created at this time and add to heap
     if (newOrders.empty() == false) {
       Order *earliestOrder = newOrders[newOrders.size() - 1];
       if (earliestOrder->getTimeCreated() == currentTime) {
-        cout << "Received new order with cost" << earliestOrder->getTimeCost() << endl;
         orderQueue.insert(earliestOrder);
         newOrders.pop_back();
       }
@@ -243,19 +247,12 @@ int main() {
       if (orderQueue.empty() == false) {
         orderBeingCooked = orderQueue.popMin();
         orderBeingCooked->startCooking(currentTime);
-        cout << "Now cooking pizza with cost" << orderBeingCooked->getTimeCost() << endl;
       }
     }
-
-    cout << "Finished orders: " << finishedOrders.size() << endl << endl;
 
     orderBeingCooked->cookOneTurn();
     currentTime++;
   }
-
-  cout << finishedOrders[0]->getWaitTime() << endl;
-  cout << finishedOrders[1]->getWaitTime() << endl;
-  cout << finishedOrders[2]->getWaitTime() << endl;
 
   // calculate average wait time
   int totalWaitTime = 0;
