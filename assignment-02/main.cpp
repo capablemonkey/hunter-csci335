@@ -10,7 +10,6 @@
 #include <iomanip>
 #include <sstream>
 #include <algorithm>
-#include <stdexcept>
 using namespace std;
 
 /*
@@ -28,13 +27,11 @@ private:
   void swapNodes(int a, int b);
   void fixNodeAt(int i);
   void removeNodeAt(int i);
-  T getMin();
 
 public:
   void insert(T item);
   T popMin();
   bool empty();
-  void printHeap();
 };
 
 template<typename T>
@@ -43,23 +40,11 @@ bool Heap<T>::empty() {
 }
 
 template<typename T>
-void Heap<T>::printHeap() {
-  cout << "*** Heap: ";
-  for (int i = 0; i < list.size(); i++) {
-    cout << "<" << list[i]->getTimeCreated() << " " << list[i]->getTimeCost() << ">" << endl;
-  }
-
-  T min = getMin();
-  cout << "*** Min: " << "<" << min->getTimeCreated() << " " << min->getTimeCost() << ">" << endl;
-}
-
-template<typename T>
 void Heap<T>::removeNodeAt(int i) {
   int indexOfLastItem = list.size() - 1;
 
   swapNodes(indexOfLastItem, i);
 
-  // delete the last item:
   list.pop_back();
 
   // fix the heap. swap node with max child until heap is valid
@@ -67,10 +52,6 @@ void Heap<T>::removeNodeAt(int i) {
   return;
 }
 
-// Given the index of a node whose position in the heap is invalid, fix the 
-// heap by moving the node to its correct position.  If a child node is greater 
-// than the node in question and the other child node, swap them.  Reapeat this 
-// recursively until the node in question is greater than both of its children.
 template<typename T>
 void Heap<T>::fixNodeAt(int i) {
   // if leaf node, nothing to do
@@ -106,29 +87,9 @@ void Heap<T>::insert(T item) {
   return;
 };
 
-template<typename T>
-T Heap<T>::getMin() {
-  if (list.size() == 0) { throw std::overflow_error("too low"); }
-
-  int indexLastNode = list.size() - 1;
-  int indexLeavesBegin = indexOfParent(indexLastNode) + 1;
-
-  T lowest = list[indexLeavesBegin];
-
-  for (int i = indexLeavesBegin; i < list.size(); i++) {
-    if (*list[i] < *lowest) {
-      lowest = list[i];
-    }
-  }
-
-  return lowest;
-}
-
 // linear search through leaf nodes for smallest.
 template<typename T>
 T Heap<T>::popMin() {
-  if (list.size() == 0) { throw "too low"; }
-
   // calculate beginning index of leaf node sequence
   // (last node).parent + 1
   int indexLastNode = list.size() - 1;
@@ -216,11 +177,7 @@ public:
   }
 };
 
-struct {
-  bool operator()(Order *a, Order *b) {
-    return a->getTimeCreated() > b->getTimeCreated();
-  }
-} descendingTimeCreated;
+
 
 int main() {
   Heap<Order*> orderQueue = Heap<Order*>();
@@ -242,6 +199,11 @@ int main() {
   }
 
   // sort so we can later pop_back to get the earliest order
+  struct {
+    bool operator()(Order *a, Order *b) {
+      return a->getTimeCreated() > b->getTimeCreated();
+    }
+  } descendingTimeCreated;
   sort(newOrders.begin(), newOrders.end(), descendingTimeCreated);
 
   // begin simulation
@@ -260,23 +222,17 @@ int main() {
       }
     }
 
-    orderQueue.printHeap();
     orderBeingCooked = orderQueue.popMin();
     orderBeingCooked->startCooking(currentTime);
-
-    cout << "At time " << currentTime << " started cooking " << orderBeingCooked->getTimeCost() << endl;
-
     currentTime += orderBeingCooked->getTimeCost();
     orderBeingCooked->finishCooking(currentTime);
     finishedOrders.push_back(orderBeingCooked);
 
-    cout << "|--> finished at " << currentTime  << ".  Orders cooked:" << finishedOrders.size() << ". New orders " << newOrders.size() << endl;
-
     // Look ahead: if no new orders since cooking pizza and no orders in heap, pass time to next order arrival.
     if (newOrders.empty() == false && orderQueue.empty()) {
-      long int nextOrder = newOrders[newOrders.size() - 1]->getTimeCreated();
-      if (nextOrder > currentTime) {
-        currentTime = nextOrder;
+      long int timeNextOrder = newOrders[newOrders.size() - 1]->getTimeCreated();
+      if (timeNextOrder > currentTime) {
+        currentTime = timeNextOrder;
       }
     }
   }
@@ -288,9 +244,6 @@ int main() {
     totalWaitTime += finishedOrders[i]->getWaitTime();
   }
 
-  double average = (totalWaitTime * 1.0) / finishedOrders.size();
-
-  cout << fixed << setprecision(0) << average;
-
+  cout << fixed << setprecision(0) << (totalWaitTime * 1.0) / finishedOrders.size();
   return 0;
 }
