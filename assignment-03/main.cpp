@@ -45,6 +45,23 @@ public:
     return;
   };
 
+  bool isCyclic() {
+    // returns true if there is a back edge.
+    set<string>::iterator u;
+    for (u = nodes.begin(); u != nodes.end(); u++) {
+      visited[*u] = false;
+
+      // look at every edge and see if for edge (u,v) pre[u] > pre[v] && post[u] < post[v]:
+      vector<string> neighbors = neighborsFor(*u);
+      vector<string>::iterator v;
+      for (v = neighbors.begin(); v!= neighbors.end(); v++) {
+        if (pre[*u] > pre[*v] && post[*u] < post[*v]) { return true; }
+      }
+    }
+
+    return false;
+  }
+
 private:
   set<string> nodes;
   unordered_map<string, vector<string> > adjacency_list;
@@ -79,8 +96,6 @@ private:
   };
 };
 
-
-
 int main() {
   Graph g = Graph();
 
@@ -94,6 +109,6 @@ int main() {
 
   g.depthFirstSearch("a");
 
-  cout << "foo" << endl;
+  cout << (g.isCyclic() ? "cyclic" : "acyclic") << endl;
   return 0;
 }
