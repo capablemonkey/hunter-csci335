@@ -48,9 +48,10 @@ public:
 private:
   set<string> nodes;
   unordered_map<string, vector<string> > adjacency_list;
-  unordered_map<string, vector<int> > pre;
-  unordered_map<string, vector<int> > post;
+  unordered_map<string, int > pre;
+  unordered_map<string, int > post;
   unordered_map<string, bool> visited;
+  int clock = 1;
 
   vector<string> neighborsFor(string node) {
     return adjacency_list[node];
@@ -58,6 +59,23 @@ private:
 
   void explore(string node) {
     visited[node] = true;
+
+    // pre-visit
+    pre[node] = clock;
+    clock++;
+
+    cout << "visited " << node << endl;
+
+    vector<string> neighbors = neighborsFor(node);
+    vector<string>::iterator it;
+
+    for (it = neighbors.begin(); it != neighbors.end(); it++) {
+      if (visited[*it] == false) { explore(*it); }
+    }
+
+    // post-visit
+    post[node] = clock;
+    clock++;
   };
 };
 
