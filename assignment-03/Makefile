@@ -1,2 +1,2 @@
 all:
-	g++ main.cpp -o dep
+	g++ -std=c++11 main.cpp -o dep

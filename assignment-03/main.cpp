@@ -3,28 +3,14 @@
 #include <vector>
 #include <set>
 #include <unordered_map>
+#include <algorithm>
 
 using namespace std;
-
-// class node {
-//   string filename;
-// };
-
-// class Edge {
-
-// };
-
-// class Graph {
-// private:
-
-// public:
-//   getNeighborsFor(node v)
-// };
 
 class Graph {
 public:
   void addEdge(string u, string v) {
-    adjacency_list[u].push_back(v);
+    adjacencyList[u].push_back(v);
   };
 
   void addNode(string u) {
@@ -62,16 +48,35 @@ public:
     return false;
   }
 
+  void printTopologicalSort() {
+    // build vector of descending (postNumber, node) pairs
+    vector< pair<int, string> > postNums;
+    set<string>::iterator node;
+    for (node = nodes.begin(); node != nodes.end(); node++) {
+      postNums.push_back(make_pair(post[*node], *node));
+    }
+
+    sort(postNums.begin(), postNums.end(),
+      [](const pair<int, string> & a, const pair<int, string> & b) -> bool {
+        return get<0>(a) > get<0>(b);
+      });
+
+    vector< pair<int, string> >::iterator it;
+    for (it = postNums.begin(); it != postNums.end(); it++) {
+      cout << get<0>(*it) << " " << get<1>(*it) << endl;
+    }
+  }
+
 private:
   set<string> nodes;
-  unordered_map<string, vector<string> > adjacency_list;
+  unordered_map<string, vector<string> > adjacencyList;
   unordered_map<string, int > pre;
   unordered_map<string, int > post;
   unordered_map<string, bool> visited;
   int clock = 1;
 
   vector<string> neighborsFor(string node) {
-    return adjacency_list[node];
+    return adjacencyList[node];
   };
 
   void explore(string node) {
@@ -109,6 +114,11 @@ int main() {
 
   g.depthFirstSearch("a");
 
-  cout << (g.isCyclic() ? "cyclic" : "acyclic") << endl;
+  if(g.isCyclic()) {
+    cout << "Circular dependency found!" << endl;
+  } else {
+    g.printTopologicalSort();
+  }
+
   return 0;
 }
