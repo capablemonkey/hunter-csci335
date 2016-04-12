@@ -49,18 +49,20 @@ public:
   }
 
   void printTopologicalSort() {
-    // build vector of descending (postNumber, node) pairs
+    // build vector of (postNumber, node) pairs
     vector< pair<int, string> > postNums;
     set<string>::iterator node;
     for (node = nodes.begin(); node != nodes.end(); node++) {
       postNums.push_back(make_pair(post[*node], *node));
     }
 
+    // Sort nodes by ascending post number:
     sort(postNums.begin(), postNums.end(),
       [](const pair<int, string> & a, const pair<int, string> & b) -> bool {
-        return get<0>(a) > get<0>(b);
+        return get<0>(a) < get<0>(b);
       });
 
+    // Print nodes in topological order:
     vector< pair<int, string> >::iterator it;
     for (it = postNums.begin(); it != postNums.end(); it++) {
       cout << get<0>(*it) << " " << get<1>(*it) << endl;
@@ -86,8 +88,7 @@ private:
     pre[node] = clock;
     clock++;
 
-    cout << "visited " << node << endl;
-
+    // visit neighbors:
     vector<string> neighbors = neighborsFor(node);
     vector<string>::iterator it;
 
