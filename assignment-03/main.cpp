@@ -1,3 +1,12 @@
+/*
+  Hunter College CSCI-335
+  Author: Gordon Zheng
+
+  Determines if a directed graph contains a cycle.  If not, prints the nodes in topological order.
+
+  Note: must be compiled with the -std=c++11 flag
+ */
+
 #include <iostream>
 #include <string>
 #include <vector>
